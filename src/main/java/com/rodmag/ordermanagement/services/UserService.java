@@ -4,6 +4,7 @@ import com.rodmag.ordermanagement.entities.User;
 import com.rodmag.ordermanagement.repositories.UserRepository;
 import com.rodmag.ordermanagement.services.exceptions.DatabaseException;
 import com.rodmag.ordermanagement.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -46,10 +47,14 @@ public class UserService {
     }
 
     public User update(Long id, User obj) {
-        //getReferenceById instancia o objeto mas sem acessar o banco
-        User entity = repository.getReferenceById(id);
-        updateData(entity, obj);
-        return repository.save(entity);
+       try{
+           //getReferenceById instancia o objeto mas sem acessar o banco
+           User entity = repository.getReferenceById(id);
+           updateData(entity, obj);
+           return repository.save(entity);
+       } catch (EntityNotFoundException e) {
+           throw new ResourceNotFoundException(id);
+       }
     }
 
     private void updateData(User entity, User obj) {
